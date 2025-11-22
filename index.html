@@ -1,151 +1,1480 @@
-<!doctype html>
-<html>
+
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<title>love</title>
-<link href="favicon.ico" rel="shortcut icon" />
-<style>
-body{
-  overflow: hidden;
-  margin: 0;
-}
-h1{
-  position: fixed;
-  top: 50%;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  transform:translateY(-50%);
-  font-family: 'Love Ya Like A Sister', cursive;
-  font-size: 40px;
-  color: #c70012;
-  padding: 0 20px;
-}
-h1 span{
-    font-size:20px;
-}
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIBT性格测评</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        // 配置Tailwind自定义颜色和字体
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5', // 主色调：靛蓝色，代表专业和信任
+                        secondary: '#10B981', // 辅助色：绿色，代表成长和发展
+                        accent: '#F59E0B', // 强调色：琥珀色，用于突出重要元素
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+            }
+            .btn-hover {
+                @apply transition-all duration-300 hover:shadow-lg transform hover:-translate-y-0.5;
+            }
+            .option-hover {
+                @apply transition-all duration-200 hover:shadow-md cursor-pointer;
+            }
+            .fade-in {
+                animation: fadeIn 0.5s ease-in-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        }
+    </style>
 </head>
-<body>
-<h1 id="h1"></h1>
-<canvas></canvas> 
+<body class="bg-gray-50 font-sans text-dark">
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm fixed w-full top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-balance-scale text-primary text-2xl"></i>
+                <h1 class="text-xl font-bold text-primary">MIBT性格测评</h1>
+            </div>
+            <nav>
+                <button id="helpBtn" class="text-gray-600 hover:text-primary transition-colors flex items-center">
+                    <i class="fa fa-question-circle mr-1"></i> 帮助
+                </button>
+            </nav>
+        </div>
+    </header>
 
-<script>
-var canvas = document.querySelector("canvas"),
-  ctx = canvas.getContext("2d");
+    <!-- 主内容区 -->
+    <main class="container mx-auto px-4 pt-24 pb-16 min-h-screen">
+        <!-- 欢迎页面 -->
+        <section id="welcomePage" class="max-w-3xl mx-auto">
+            <div class="bg-white rounded-xl p-8 md:p-10 card-shadow">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa fa-user-circle text-primary text-2xl"></i>
+                    </div>
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800 mb-3">欢迎进行MIBT性格测评</h2>
+                    <p class="text-gray-600 max-w-xl mx-auto">探索你的性格类型，发现你的优势与潜力，了解适合你的职业发展方向。</p>
+                </div>
 
-var ww,wh;
+                <div class="space-y-4 mb-8">
+                    <div class="flex items-start">
+                        <div class="mt-1 bg-primary/10 rounded-full p-1 mr-3">
+                            <i class="fa fa-check text-primary text-sm"></i>
+                        </div>
+                        <p class="text-gray-700">共60道题目，每道题请选择更符合你偏好的选项</p>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="mt-1 bg-primary/10 rounded-full p-1 mr-3">
+                            <i class="fa fa-check text-primary text-sm"></i>
+                        </div>
+                        <p class="text-gray-700">完成测试后，将获得详细的性格分析报告</p>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="mt-1 bg-primary/10 rounded-full p-1 mr-3">
+                            <i class="fa fa-check text-primary text-sm"></i>
+                        </div>
+                        <p class="text-gray-700">测试时间约为10-15分钟，请在不受干扰的环境中完成</p>
+                    </div>
+                </div>
 
-function onResize(){
-  ww = canvas.width = window.innerWidth;
-  wh = canvas.height = window.innerHeight;
-}
+                <div class="text-center">
+                    <button id="startTestBtn" class="bg-primary hover:bg-primary/90 text-white font-medium py-3 px-8 rounded-lg btn-hover">
+                        开始测评
+                        <i class="fa fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
 
-ctx.strokeStyle = "red";
-ctx.shadowBlur = 25;
-ctx.shadowColor = "hsla(0, 100%, 60%,0.5)";
+        <!-- 测试页面 -->
+        <section id="testPage" class="max-w-3xl mx-auto hidden">
+            <!-- 进度条 -->
+            <div class="mb-6">
+                <div class="flex justify-between text-sm text-gray-500 mb-2">
+                    <span>进度</span>
+                    <span id="progressText">1/60</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="progressBar" class="bg-primary h-2.5 rounded-full transition-all duration-300" style="width: 1.67%"></div>
+                </div>
+            </div>
 
-var precision = 100;
-var hearts = [];
-var mouseMoved = false;
-function onMove(e){
-  mouseMoved = true;
-  if(e.type === "touchmove"){
-    hearts.push(new Heart(e.touches[0].clientX, e.touches[0].clientY));
-    hearts.push(new Heart(e.touches[0].clientX, e.touches[0].clientY));
-  }
-  else{
-    hearts.push(new Heart(e.clientX, e.clientY));
-    hearts.push(new Heart(e.clientX, e.clientY));
-  }
-}
+            <!-- 题目卡片 -->
+            <div class="bg-white rounded-xl p-6 md:p-8 card-shadow mb-6">
+                <div class="flex justify-between items-start mb-6">
+                    <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">第 <span id="currentQuestion">1</span> 题</span>
+                    <button id="markBtn" class="text-gray-400 hover:text-accent transition-colors">
+                        <i class="fa fa-bookmark-o"></i>
+                        <span class="ml-1 text-sm">标记</span>
+                    </button>
+                </div>
 
-var Heart = function(x,y){
-  this.x = x || Math.random()*ww;
-  this.y = y || Math.random()*wh;
-  this.size = Math.random()*2 + 1;
-  this.shadowBlur = Math.random() * 10;
-  this.speedX = (Math.random()+0.2-0.6) * 8;
-  this.speedY = (Math.random()+0.2-0.6) * 8;
-  this.speedSize = Math.random()*0.05 + 0.01;
-  this.opacity = 1;
-  this.vertices = [];
-  for (var i = 0; i < precision; i++) {
-    var step = (i / precision - 0.5) * (Math.PI * 2);
-    var vector = {
-      x : (15 * Math.pow(Math.sin(step), 3)),
-      y : -(13 * Math.cos(step) - 5 * Math.cos(2 * step) - 2 * Math.cos(3 * step) - Math.cos(4 * step)) 
-    }
-    this.vertices.push(vector);
-  }
-}
+                <h3 id="questionText" class="text-xl md:text-2xl font-semibold text-gray-800 mb-8">你更倾向于：</h3>
 
-Heart.prototype.draw = function(){
-  this.size -= this.speedSize;
-  this.x += this.speedX;
-  this.y += this.speedY;
-  ctx.save();
-  ctx.translate(-1000,this.y);
-  ctx.scale(this.size, this.size);
-  ctx.beginPath();
-  for (var i = 0; i < precision; i++) {
-    var vector = this.vertices[i];
-    ctx.lineTo(vector.x, vector.y);
-  }
-  ctx.globalAlpha = this.size;
-  ctx.shadowBlur = Math.round((3 - this.size) * 10);
-  ctx.shadowColor = "hsla(0, 100%, 60%,0.5)";
-  ctx.shadowOffsetX = this.x + 1000;
-  ctx.globalCompositeOperation = "screen"
-  ctx.closePath();
-  ctx.fill()
-  ctx.restore();
-};
+                <div class="space-y-4">
+                    <div id="optionA" class="option-hover border border-gray-200 rounded-lg p-5 hover:border-primary/50">
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex-shrink-0 mr-3 option-radio"></div>
+                            <p class="text-gray-700" id="optionAText">A) 喜欢有计划的生活</p>
+                        </div>
+                    </div>
 
+                    <div id="optionB" class="option-hover border border-gray-200 rounded-lg p-5 hover:border-primary/50">
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex-shrink-0 mr-3 option-radio"></div>
+                            <p class="text-gray-700" id="optionBText">B) 喜欢随性自由</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-function render(a){
-  requestAnimationFrame(render);
+            <!-- 导航按钮 -->
+            <div class="flex justify-between">
+                <button id="prevBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 px-6 rounded-lg btn-hover disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <i class="fa fa-arrow-left mr-2"></i> 上一题
+                </button>
+                <button id="nextBtn" class="bg-primary hover:bg-primary/90 text-white font-medium py-2.5 px-6 rounded-lg btn-hover">
+                    下一题 <i class="fa fa-arrow-right ml-2"></i>
+                </button>
+            </div>
 
-  hearts.push(new Heart())
-  ctx.clearRect(0,0,ww,wh);
-  for (var i = 0; i < hearts.length; i++) {
-    hearts[i].draw();
-    if(hearts[i].size <= 0){
-      hearts.splice(i,1);
-      i--;
-    }
-  }
-}
+            <!-- 答题卡按钮 -->
+            <div class="text-center mt-8">
+                <button id="showAnswerSheetBtn" class="text-primary hover:text-primary/80 font-medium flex items-center mx-auto">
+                    <i class="fa fa-th-large mr-2"></i> 查看答题卡
+                </button>
+            </div>
+        </section>
 
+        <!-- 答题卡 -->
+        <div id="answerSheet" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl w-full max-w-3xl max-h-[80vh] overflow-y-auto">
+                <div class="p-6 border-b">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-gray-800">答题卡</h3>
+                        <button id="closeAnswerSheetBtn" class="text-gray-500 hover:text-gray-700">
+                            <i class="fa fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <p class="text-gray-600 mt-1">点击题号可直接跳转到对应题目</p>
+                </div>
+                <div class="p-6">
+                    <div id="answerSheetGrid" class="grid grid-cols-5 sm:grid-cols-10 gap-2">
+                        <!-- 动态生成答题卡 -->
+                    </div>
+                </div>
+            </div>
+        </div>
 
-onResize();
-window.addEventListener("mousemove", onMove);
-window.addEventListener("touchmove", onMove);
-window.addEventListener("resize", onResize);
-requestAnimationFrame(render);
+        <!-- 结果页面 -->
+        <section id="resultPage" class="max-w-4xl mx-auto hidden">
+            <div class="bg-white rounded-xl p-6 md:p-8 card-shadow mb-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">你的MIBT性格类型</h2>
+                    <div class="inline-block bg-primary/10 rounded-full px-6 py-3 mb-4">
+                        <span id="personalityType" class="text-3xl md:text-4xl font-bold text-primary">INFP</span>
+                    </div>
+                    <h3 id="typeNickname" class="text-xl md:text-2xl text-gray-700 font-semibold">调停者</h3>
+                </div>
 
-window.onload=function starttime(){
-        time(h1,'2024/9/28 23:08:08');                           // 在一起的时间
-        ptimer = setTimeout(starttime,1000);            // 添加计时器
-}
+                <!-- 类型分析 -->
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-star text-accent mr-2"></i> 核心特征
+                        </h4>
+                        <p id="coreTraits" class="text-gray-700 leading-relaxed">
+                            INFP型的人是理想主义者，忠于自己的价值观及自己所重视的人。他们温和、有同情心，富有洞察力，对可能性有敏锐的感觉，能看到事物的深层意义。
+                        </p>
+                    </div>
 
-    function time(obj,futimg){
-        var nowtime = new Date().getTime();             // 现在时间转换为时间戳
-        var futruetime =  new Date(futimg).getTime();   // 未来时间转换为时间戳
-        var msec = nowtime-futruetime;                  // 毫秒 未来时间-现在时间
-        var time = (msec/1000);                         // 毫秒/1000
-        var day = parseInt(time/86400);                 // 天  24*60*60*1000 
-        var hour = parseInt(time/3600)-24*day;          // 小时 60*60 总小时数-过去的小时数=现在的小时数 
-        var minute = parseInt(time%3600/60);            // 分 -(day*24) 以60秒为一整份 取余 剩下秒数 秒数/60 就是分钟数
-        var second = parseInt(time%60);                 // 以60秒为一整份 取余 剩下秒数
-//              console.log(hour+":"+minute+":"+second)
-//              alert(hour)
-        obj.innerHTML="寻找伴侣的第<br><br>"+day+"天"+hour+"小时"+minute+"分"+second+"秒"+"<br> <span><br>我坚信最浪漫的事就是找一位合适的伴侣一起慢慢变老，相伴一生.<br>加油！只要每天付出点时间寻找交流，一个月内一定会找到心仪伴侣的</span>"
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-plus-circle text-secondary mr-2"></i> 优势分析
+                        </h4>
+                        <ul id="strengths" class="text-gray-700 space-y-2">
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                <span>富有创造力和想象力，能提出独特的解决方案</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                <span>对他人富有同情心和同理心，善于理解他人</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                <span>坚持自己的价值观，有强烈的道德感</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-check-circle text-secondary mt-1 mr-2"></i>
+                                <span>善于观察和反思，有深刻的洞察力</span>
+                            </li>
+                        </ul>
+                    </div>
 
-        return true;
-    }
-</script>
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-lightbulb-o text-accent mr-2"></i> 发展建议
+                        </h4>
+                        <ul id="developmentTips" class="text-gray-700 space-y-2">
+                            <li class="flex items-start">
+                                <i class="fa fa-arrow-right text-accent mt-1 mr-2"></i>
+                                <span>学会在必要时更直接地表达自己的需求和想法</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-arrow-right text-accent mt-1 mr-2"></i>
+                                <span>发展更强的执行力，将理想转化为实际行动</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-arrow-right text-accent mt-1 mr-2"></i>
+                                <span>学会接受现实的不完美，避免过度理想化</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa fa-arrow-right text-accent mt-1 mr-2"></i>
+                                <span>培养更强的抗压能力，应对生活中的变化</span>
+                            </li>
+                        </ul>
+                    </div>
 
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                            <i class="fa fa-briefcase text-primary mr-2"></i> 适合的职业方向
+                        </h4>
+                        <div id="careerOptions" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <span class="font-medium">心理咨询师</span>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <span class="font-medium">作家/编辑</span>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <span class="font-medium">艺术家/设计师</span>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <span class="font-medium">社会工作者</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分享和重新测试按钮 -->
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button id="shareResultBtn" class="bg-accent hover:bg-accent/90 text-white font-medium py-3 px-6 rounded-lg btn-hover flex items-center justify-center">
+                    <i class="fa fa-share-alt mr-2"></i> 分享结果
+                </button>
+                <button id="retestBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-3 px-6 rounded-lg btn-hover flex items-center justify-center">
+                    <i class="fa fa-refresh mr-2"></i> 重新测试
+                </button>
+            </div>
+        </section>
+
+        <!-- 帮助弹窗 -->
+        <div id="helpModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+                <div class="p-6 border-b">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-gray-800">测评帮助</h3>
+                        <button id="closeHelpBtn" class="text-gray-500 hover:text-gray-700">
+                            <i class="fa fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">如何进行测评？</h4>
+                        <p class="text-gray-700">测评包含60道二选一的题目，请仔细阅读每道题并选择更符合你真实情况的选项。</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-2">如何看待测评结果？</h4>
+                        <p class="text-gray-700">MIBT测评结果反映的是你的性格倾向，而非绝对的分类。每种性格类型都有其独特的价值和优势。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分享弹窗 -->
+        <div id="shareModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl w-full max-w-md">
+                <div class="p-6 border-b">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-gray-800">分享你的结果</h3>
+                        <button id="closeShareBtn" class="text-gray-500 hover:text-gray-700">
+                            <i class="fa fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="text-center mb-6">
+                        <p class="text-gray-700 mb-2">我的MIBT性格类型是</p>
+                        <p id="shareType" class="text-2xl font-bold text-primary">INFP - 调停者</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-4 gap-4 mb-6">
+                        <button class="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                            <i class="fa fa-weixin text-green-500 text-xl mb-2"></i>
+                            <span class="text-sm text-gray-700">微信</span>
+                        </button>
+                        <button class="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                            <i class="fa fa-weibo text-red-500 text-xl mb-2"></i>
+                            <span class="text-sm text-gray-700">微博</span>
+                        </button>
+                        <button class="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                            <i class="fa fa-qq text-blue-500 text-xl mb-2"></i>
+                            <span class="text-sm text-gray-700">QQ</span>
+                        </button>
+                        <button class="flex flex-col items-center justify-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                            <i class="fa fa-link text-gray-500 text-xl mb-2"></i>
+                            <span class="text-sm text-gray-700">复制链接</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-gray-400 py-8">
+        <div class="container mx-auto px-4">
+            <div class="text-center">
+                <p class="mb-2">MIBT性格测评 &copy; 2023</p>
+                <p class="text-sm">本测评仅供参考，不构成专业心理评估</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 60道MIBT测试题目，分属四个维度
+        const questions = [
+            // 外向(E) vs 内向(I) - 15题
+            {
+                text: "你更倾向于：",
+                optionA: "A) 与他人相处时精力充沛",
+                optionB: "B) 独处时精力充沛",
+                dimension: "EI",
+                aValue: "E",
+                bValue: "I"
+            },
+            {
+                text: "你更偏好：",
+                optionA: "A) 边想边说",
+                optionB: "B) 先想后说",
+                dimension: "EI",
+                aValue: "E",
+                bValue: "I"
+            },
+            {
+                text: "在社交场合中，你通常：",
+                optionA: "A) 很活跃，喜欢结识新朋友",
+                optionB: "B) 比较安静，只与熟悉的人交流",
+                dimension: "EI",
+                aValue: "E",
+                bValue: "I"
+            },
+            {
+                text: "当你有重要决定要做时，你更倾向于：",
+                optionA: "A) 与他人讨论后再决定",
+                optionB: "B) 自己思考后决定",
+                dimension: "EI",
+                aValue: "E",
+                bValue: "I"
+            },
+            {
+                text: "你认为自己更像是：",
+                optionA: "A) 行动派，喜欢付诸实践",
+                optionB: "B) 思考派，喜欢深入思考",
+                dimension: "EI",
+                aValue: "E",
+                bValue: "I"
+            },
+            {
+                text: "在团队工作中，你更擅长：",
+                optionA: "A) 与人沟通协调",
+                optionB: "B) 独立完成任务",
+                dimension: "EI",
+                aValue: "E",
+                bValue: "I"
+            },
+            {
+                text: "你如何恢复精力？",
+                optionA: "A) 和朋友一起参加活动",
+                optionB: "B) 安静地独自做一些事情",
+                dimension: "EI",
+                aValue: "E",
+                bValue: "I"
+            },
+            {
+                text: "你更享受：",
+                optionA: "A) 热闹的聚会",
+                optionB: "B) 小型的朋友聚会",
+                dimension: "EI",
+                aValue: "E",
+                bValue: "I"
+            },
+            {
+                text: "当你遇到问题时，你更倾向于：",
+                optionA: "A) 向他人寻求建议",
+                optionB: "B) 自己研究解决",
+                dimension: "EI",
+                aValue: "E",
+                bValue: "I"
+            },
+            {
+                text: "你认为自己是：",
+                optionA: "A) 外向开朗的人",
+                optionB: "B) 内敛深沉的人",
+                dimension: "EI",
+                aValue: "E",
+                bValue: "I"
+            },
+            {
+                text: "在会议中，你通常：",
+                optionA: "A) 积极发言，表达自己的观点",
+                optionB: "B) 认真倾听，必要时才发言",
+                dimension: "EI",
+                aValue: "E",
+                bValue: "I"
+            },
+            {
+                text: "你更喜欢的工作方式是：",
+                optionA: "A) 团队协作完成",
+                optionB: "B) 独立工作完成",
+                dimension: "EI",
+                aValue: "E",
+                bValue: "I"
+            },
+            {
+                text: "你如何处理压力？",
+                optionA: "A) 和朋友聊天放松",
+                optionB: "B) 独自做一些喜欢的事情",
+                dimension: "EI",
+                aValue: "E",
+                bValue: "I"
+            },
+            {
+                text: "你更关注：",
+                optionA: "A) 外部世界的变化",
+                optionB: "B) 内心世界的想法",
+                dimension: "EI",
+                aValue: "E",
+                bValue: "I"
+            },
+            {
+                text: "在新环境中，你会：",
+                optionA: "A) 很快适应并融入",
+                optionB: "B) 需要时间慢慢适应",
+                dimension: "EI",
+                aValue: "E",
+                bValue: "I"
+            },
+            
+            // 实感(S) vs 直觉(N) - 15题
+            {
+                text: "你更注重：",
+                optionA: "A) 实际的情况和细节",
+                optionB: "B) 可能性和整体趋势",
+                dimension: "SN",
+                aValue: "S",
+                bValue: "N"
+            },
+            {
+                text: "学习新知识时，你更喜欢：",
+                optionA: "A) 具体的例子和实践",
+                optionB: "B) 抽象的概念和理论",
+                dimension: "SN",
+                aValue: "S",
+                bValue: "N"
+            },
+            {
+                text: "你做决定时更依赖：",
+                optionA: "A) 已知的事实和经验",
+                optionB: "B) 灵感和预感",
+                dimension: "SN",
+                aValue: "S",
+                bValue: "N"
+            },
+            {
+                text: "你更擅长：",
+                optionA: "A) 记住具体的细节",
+                optionB: "B) 看到事物之间的联系",
+                dimension: "SN",
+                aValue: "S",
+                bValue: "N"
+            },
+            {
+                text: "你对什么更感兴趣？",
+                optionA: "A) 事物的现状",
+                optionB: "B) 事物的潜力和未来",
+                dimension: "SN",
+                aValue: "S",
+                bValue: "N"
+            },
+            {
+                text: "你更相信：",
+                optionA: "A) 可以测量和验证的东西",
+                optionB: "B) 直觉和洞察力",
+                dimension: "SN",
+                aValue: "S",
+                bValue: "N"
+            },
+            {
+                text: "在解决问题时，你更倾向于：",
+                optionA: "A) 按照既定的方法进行",
+                optionB: "B) 寻找新的方法和思路",
+                dimension: "SN",
+                aValue: "S",
+                bValue: "N"
+            },
+            {
+                text: "你更关注：",
+                optionA: "A) 具体的、实际的应用",
+                optionB: "B) 抽象的、理论的思考",
+                dimension: "SN",
+                aValue: "S",
+                bValue: "N"
+            },
+            {
+                text: "你认为哪种描述更符合你？",
+                optionA: "A) 注重实际，脚踏实地",
+                optionB: "B) 富有想象力，关注未来",
+                dimension: "SN",
+                aValue: "S",
+                bValue: "N"
+            },
+            {
+                text: "阅读时，你更喜欢：",
+                optionA: "A) 事实性的内容",
+                optionB: "B) 虚构的故事",
+                dimension: "SN",
+                aValue: "S",
+                bValue: "N"
+            },
+            {
+                text: "你更擅长处理：",
+                optionA: "A) 具体的数字和数据",
+                optionB: "B) 抽象的概念和想法",
+                dimension: "SN",
+                aValue: "S",
+                bValue: "N"
+            },
+            {
+                text: "你对新事物的态度是：",
+                optionA: "A) 先了解它的实际用途",
+                optionB: "B) 先想象它的可能性",
+                dimension: "SN",
+                aValue: "S",
+                bValue: "N"
+            },
+            {
+                text: "在规划时，你更关注：",
+                optionA: "A) 具体的步骤和细节",
+                optionB: "B) 整体的目标和方向",
+                dimension: "SN",
+                aValue: "S",
+                bValue: "N"
+            },
+            {
+                text: "你更倾向于：",
+                optionA: "A) 基于经验做出判断",
+                optionB: "B) 基于灵感做出判断",
+                dimension: "SN",
+                aValue: "S",
+                bValue: "N"
+            },
+            {
+                text: "你认为哪种学习方式更有效？",
+                optionA: "A) 通过实践和例子学习",
+                optionB: "B) 通过思考和讨论学习",
+                dimension: "SN",
+                aValue: "S",
+                bValue: "N"
+            },
+            
+            // 思考(T) vs 情感(F) - 15题
+            {
+                text: "做决定时，你更看重：",
+                optionA: "A) 逻辑和分析",
+                optionB: "B) 情感和人际关系",
+                dimension: "TF",
+                aValue: "T",
+                bValue: "F"
+            },
+            {
+                text: "你更倾向于：",
+                optionA: "A) 公正地对待所有人",
+                optionB: "B) 考虑每个人的特殊情况",
+                dimension: "TF",
+                aValue: "T",
+                bValue: "F"
+            },
+            {
+                text: "在争论中，你通常：",
+                optionA: "A) 坚持自己的观点，直到被证明错误",
+                optionB: "B) 更关注维护关系，而不是赢得争论",
+                dimension: "TF",
+                aValue: "T",
+                bValue: "F"
+            },
+            {
+                text: "你认为自己更像是：",
+                optionA: "A) 理性客观的人",
+                optionB: "B) 感性体贴的人",
+                dimension: "TF",
+                aValue: "T",
+                bValue: "F"
+            },
+            {
+                text: "在评价他人时，你更关注：",
+                optionA: "A) 能力和效率",
+                optionB: "B) 热情和关怀",
+                dimension: "TF",
+                aValue: "T",
+                bValue: "F"
+            },
+            {
+                text: "你更重视：",
+                optionA: "A) 真理和原则",
+                optionB: "B) 和谐与理解",
+                dimension: "TF",
+                aValue: "T",
+                bValue: "F"
+            },
+            {
+                text: "当朋友遇到问题时，你更可能：",
+                optionA: "A) 给出实际的解决方案",
+                optionB: "B) 表达理解和支持",
+                dimension: "TF",
+                aValue: "T",
+                bValue: "F"
+            },
+            {
+                text: "在团队中，你更关注：",
+                optionA: "A) 任务的完成效率",
+                optionB: "B) 团队成员的感受",
+                dimension: "TF",
+                aValue: "T",
+                bValue: "F"
+            },
+            {
+                text: "你认为哪种反馈方式更好？",
+                optionA: "A) 直接指出问题和不足",
+                optionB: "B) 委婉地提出改进建议",
+                dimension: "TF",
+                aValue: "T",
+                bValue: "F"
+            },
+            {
+                text: "做选择时，你更倾向于：",
+                optionA: "A) 基于利弊分析",
+                optionB: "B) 基于个人价值观",
+                dimension: "TF",
+                aValue: "T",
+                bValue: "F"
+            },
+            {
+                text: "你更擅长：",
+                optionA: "A) 分析问题的根源",
+                optionB: "B) 理解他人的感受",
+                dimension: "TF",
+                aValue: "T",
+                bValue: "F"
+            },
+            {
+                text: "你认为规则应该：",
+                optionA: "A) 严格执行，一视同仁",
+                optionB: "B) 灵活运用，考虑特殊情况",
+                dimension: "TF",
+                aValue: "T",
+                bValue: "F"
+            },
+            {
+                text: "在解决冲突时，你更倾向于：",
+                optionA: "A) 找到公平的解决方案",
+                optionB: "B) 确保每个人都感到被理解",
+                dimension: "TF",
+                aValue: "T",
+                bValue: "F"
+            },
+            {
+                text: "你更看重自己的：",
+                optionA: "A) 理性思考能力",
+                optionB: "B) 同理心和关怀",
+                dimension: "TF",
+                aValue: "T",
+                bValue: "F"
+            },
+            {
+                text: "在做决定时，你更可能：",
+                optionA: "A) 不受情感影响",
+                optionB: "B) 考虑他人的感受",
+                dimension: "TF",
+                aValue: "T",
+                bValue: "F"
+            },
+            
+            // 判断(J) vs 感知(P) - 15题
+            {
+                text: "你更倾向于：",
+                optionA: "A) 有计划、有组织",
+                optionB: "B) 灵活、随性",
+                dimension: "JP",
+                aValue: "J",
+                bValue: "P"
+            },
+            {
+                text: "对于日程安排，你更喜欢：",
+                optionA: "A) 提前规划好",
+                optionB: "B) 顺其自然",
+                dimension: "JP",
+                aValue: "J",
+                bValue: "P"
+            },
+            {
+                text: "你更享受：",
+                optionA: "A) 完成任务的成就感",
+                optionB: "B) 探索新可能性的过程",
+                dimension: "JP",
+                aValue: "J",
+                bValue: "P"
+            },
+            {
+                text: "在工作中，你更倾向于：",
+                optionA: "A) 先完成任务再休息",
+                optionB: "B) 边工作边休息，保持灵活",
+                dimension: "JP",
+                aValue: "J",
+                bValue: "P"
+            },
+            {
+                text: "你对生活的态度是：",
+                optionA: "A) 有明确的目标和计划",
+                optionB: "B) 随遇而安，享受当下",
+                dimension: "JP",
+                aValue: "J",
+                bValue: "P"
+            },
+            {
+                text: "你更擅长：",
+                optionA: "A) 制定计划并执行",
+                optionB: "B) 应对突发情况",
+                dimension: "JP",
+                aValue: "J",
+                bValue: "P"
+            },
+            {
+                text: "当计划被打乱时，你会：",
+                optionA: "A) 感到不适，尽快调整回原计划",
+                optionB: "B) 灵活应对，享受变化",
+                dimension: "JP",
+                aValue: "J",
+                bValue: "P"
+            },
+            {
+                text: "你更倾向于：",
+                optionA: "A) 做出决定并坚持",
+                optionB: "B) 保持开放，不急于下结论",
+                dimension: "JP",
+                aValue: "J",
+                bValue: "P"
+            },
+            {
+                text: "在时间管理上，你更注重：",
+                optionA: "A) 效率和准时",
+                optionB: "B) 灵活和舒适",
+                dimension: "JP",
+                aValue: "J",
+                bValue: "P"
+            },
+            {
+                text: "你更喜欢的工作环境是：",
+                optionA: "A) 结构清晰，有明确流程",
+                optionB: "B) 灵活自由，没有太多限制",
+                dimension: "JP",
+                aValue: "J",
+                bValue: "P"
+            },
+            {
+                text: "你更倾向于：",
+                optionA: "A) 把事情做完再开始新的",
+                optionB: "B) 同时进行多个项目",
+                dimension: "JP",
+                aValue: "J",
+                bValue: "P"
+            },
+            {
+                text: "在旅行前，你会：",
+                optionA: "A) 详细规划行程和住宿",
+                optionB: "B) 只做大致计划，随遇而安",
+                dimension: "JP",
+                aValue: "J",
+                bValue: "P"
+            },
+            {
+                text: "你对规则的态度是：",
+                optionA: "A) 认为规则很重要，应该遵守",
+                optionB: "B) 认为规则可以灵活变通",
+                dimension: "JP",
+                aValue: "J",
+                bValue: "P"
+            },
+            {
+                text: "你更关注：",
+                optionA: "A) 完成任务的最后期限",
+                optionB: "B) 任务过程中的体验",
+                dimension: "JP",
+                aValue: "J",
+                bValue: "P"
+            },
+            {
+                text: "你认为自己更像是：",
+                optionA: "A) 果断决策者",
+                optionB: "B) 深思熟虑者",
+                dimension: "JP",
+                aValue: "J",
+                bValue: "P"
+            }
+        ];
+
+        // 性格类型描述数据
+        const personalityTypes = {
+            "ISTJ": {
+                nickname: "检查官",
+                coreTraits: "ISTJ型的人是严肃的、有责任心的和通情达理的社会坚定分子。他们值得信赖，他们重视承诺，对他们来说，言语就是庄严的宣誓。",
+                strengths: [
+                    "责任心强，值得信赖",
+                    "注重细节，一丝不苟",
+                    "有很强的组织能力和条理性"
+                ],
+                developmentTips: [
+                    "学会放松，不要过于追求完美",
+                    "尝试接受变化和不确定性",
+                    "多关注他人的感受和需求"
+                ],
+                careerOptions: ["会计", "审计师", "管理员", "工程师", "警察"]
+            },
+            "ISFJ": {
+                nickname: "守卫者",
+                coreTraits: "ISFJ型的人忠诚、有奉献精神和同情心，理解别人的感受。他们意志清醒而有责任心，乐于为人所需。",
+                strengths: [
+                    "富有同情心，关心他人",
+                    "有强烈的责任感和奉献精神",
+                    "注重细节，认真负责"
+                ],
+                developmentTips: [
+                    "学会拒绝不合理的要求，保护自己的时间和精力",
+                    "不要过于自我批评和自责",
+                    "尝试表达自己的需求和想法"
+                ],
+                careerOptions: ["护士", "教师", "社工", "秘书", "行政助理"]
+            },
+            "INFJ": {
+                nickname: "咨询师",
+                coreTraits: "INFJ型的人生活在思想的世界里。他们是独立的、有独创性的思想家，具有强烈的感情、坚定的原则和正直的人性。",
+                strengths: [
+                    "富有洞察力和远见",
+                    "有强烈的价值观和理想",
+                    "善于理解他人的动机和情感"
+                ],
+                developmentTips: [
+                    "学会接受现实的不完美",
+                    "不要过于理想化，保持务实",
+                    "多关注当下，不要过于沉浸在未来"
+                ],
+                careerOptions: ["心理咨询师", "作家", "教师", "社会活动家", "艺术家"]
+            },
+            "INTJ": {
+                nickname: "策划者",
+                coreTraits: "INTJ型的人是完美主义者。他们强烈地要求个人自由和能力，同时在他们独创的思想中，不可动摇的信仰促使他们达到目标。",
+                strengths: [
+                    "有远见和洞察力",
+                    "逻辑性强，善于分析",
+                    "独立自主，有创新精神"
+                ],
+                developmentTips: [
+                    "学会倾听他人的意见和建议",
+                    "不要过于固执己见",
+                    "关注他人的感受和需求"
+                ],
+                careerOptions: ["战略规划师", "科学家", "工程师", "企业家", "律师"]
+            },
+            "ISTP": {
+                nickname: "手艺人",
+                coreTraits: "ISTP型的人坦率、诚实、讲求实效，他们喜欢行动而非漫谈。他们很谦逊，对于完成工作的方法有很好的理解力。",
+                strengths: [
+                    "务实、实际，注重结果",
+                    "善于解决实际问题",
+                    "灵活变通，适应能力强"
+                ],
+                developmentTips: [
+                    "学会关注他人的情感需求",
+                    "不要过于注重短期结果，忽视长期规划",
+                    "尝试表达自己的想法和感受"
+                ],
+                careerOptions: ["机械师", "工程师", "程序员", "消防员", "运动员"]
+            },
+            "ISFP": {
+                nickname: "艺术家",
+                coreTraits: "ISFP型的人平和、敏感，他们保持着许多强烈的个人理想和自己的价值观念。他们更多地是通过行为而不是言辞来表达自己深沉的情感。",
+                strengths: [
+                    "敏感、体贴，善于理解他人",
+                    "有艺术天赋和创造力",
+                    "灵活、适应性强"
+                ],
+                developmentTips: [
+                    "学会表达自己的想法和需求",
+                    "不要过于回避冲突和矛盾",
+                    "培养长期规划的能力"
+                ],
+                careerOptions: ["艺术家", "设计师", "音乐家", "厨师", "护士"]
+            },
+            "INFP": {
+                nickname: "调停者",
+                coreTraits: "INFP型的人是理想主义者，忠于自己的价值观及自己所重视的人。他们温和、有同情心，富有洞察力，对可能性有敏锐的感觉。",
+                strengths: [
+                    "富有创造力和想象力",
+                    "对他人富有同情心和同理心",
+                    "坚持自己的价值观，有强烈的道德感"
+                ],
+                developmentTips: [
+                    "学会在必要时更直接地表达自己的需求和想法",
+                    "发展更强的执行力，将理想转化为实际行动",
+                    "学会接受现实的不完美，避免过度理想化"
+                ],
+                careerOptions: ["心理咨询师", "作家/编辑", "艺术家/设计师", "社会工作者", "教师"]
+            },
+            "INTP": {
+                nickname: "逻辑学家",
+                coreTraits: "INTP型的人是解决理性问题者。他们很有才智和条理性，以及创造才华的突出表现。INTP型的人外表平静、缄默、超然。",
+                strengths: [
+                    "逻辑思维能力强，善于分析",
+                    "有创造力和创新精神",
+                    "独立自主，喜欢思考"
+                ],
+                developmentTips: [
+                    "学会关注实际应用，不要过于理论化",
+                    "增强行动力，将想法付诸实践",
+                    "关注他人的情感和需求"
+                ],
+                careerOptions: ["科学家", "数学家", "哲学家", "程序员", "分析师"]
+            },
+            "ESTP": {
+                nickname: "创业者",
+                coreTraits: "ESTP型的人不会焦虑，因为他们是快乐的。ESTP型的人活跃、随遇而安、天真率直。他们乐于享受现在的一切而不是为将来计划什么。",
+                strengths: [
+                    "务实、实际，注重结果",
+                    "善于应对突发情况",
+                    "有活力和热情"
+                ],
+                developmentTips: [
+                    "学会制定长期计划，不要只关注眼前",
+                    "增强耐心，接受过程的重要性",
+                    "关注他人的感受，不要过于直接"
+                ],
+                careerOptions: ["企业家", "销售", "市场营销", "警察", "消防员"]
+            },
+            "ESFP": {
+                nickname: "表演者",
+                coreTraits: "ESFP型的人乐意与人相处，有一种真正的生活热情。他们顽皮活泼，通过真诚和玩笑使别人感到事情更加有趣。",
+                strengths: [
+                    "热情、友好，善于与人相处",
+                    "有活力和幽默感",
+                    "灵活、适应性强"
+                ],
+                developmentTips: [
+                    "学会规划未来，不要只关注当下",
+                    "增强专注力，能够深入完成任务",
+                    "学会处理冲突，不要过于回避"
+                ],
+                careerOptions: ["演员", "主持人", "销售", "客户服务", "教师"]
+            },
+            "ENFP": {
+                nickname: "追梦人",
+                coreTraits: "ENFP型的人充满热情和新思想。他们乐观、自然、富有创造性和自信，具有独创性的思想和对可能性的强烈感受。",
+                strengths: [
+                    "富有创造力和想象力",
+                    "热情、乐观，有感染力",
+                    "善于理解他人，有同理心"
+                ],
+                developmentTips: [
+                    "增强执行力，将想法转化为行动",
+                    "学会专注于完成任务，不要过于分散精力",
+                    "培养耐心，接受过程的重要性"
+                ],
+                careerOptions: ["市场营销", "公共关系", "教师", "顾问", "艺术家"]
+            },
+            "ENTP": {
+                nickname: "辩论家",
+                coreTraits: "ENTP型的人喜欢兴奋与挑战。他们热情开放、足智多谋、健谈而聪明，擅长于许多事情，不断追求增加能力和个人权力。",
+                strengths: [
+                    "聪明、机智，善于辩论",
+                    "有创造力和创新精神",
+                    "灵活、适应性强"
+                ],
+                developmentTips: [
+                    "学会关注细节，不要过于宏观",
+                    "增强执行力，将想法转化为行动",
+                    "关注他人的感受，不要过于理性"
+                ],
+                careerOptions: ["律师", "企业家", "顾问", "市场营销", "公关"]
+            },
+            "ESTJ": {
+                nickname: "管理者",
+                coreTraits: "ESTJ型的人高效率地工作，自我负责，监督他人工作，合理分配和处置资源，主次分明，井井有条。",
+                strengths: [
+                    "组织能力强，善于管理",
+                    "务实、高效，注重结果",
+                    "有责任心和可靠性"
+                ],
+                developmentTips: [
+                    "学会灵活变通，不要过于固执",
+                    "关注他人的感受和需求",
+                    "学会倾听他人的意见和建议"
+                ],
+                careerOptions: ["管理者", "行政主管", "警察", "军人", "教师"]
+            },
+            "ESFJ": {
+                nickname: "东道主",
+                coreTraits: "ESFJ型的人通过直接的行动和合作积极地以真实、实际的方法帮助别人。他们友好、富有同情心和责任感。",
+                strengths: [
+                    "友好、热情，善于与人相处",
+                    "有强烈的责任感和奉献精神",
+                    "善于组织和协调"
+                ],
+                developmentTips: [
+                    "学会拒绝不合理的要求，保护自己的时间",
+                    "不要过于在意他人的评价",
+                    "学会表达自己的想法和需求"
+                ],
+                careerOptions: ["教师", "护士", "社会工作者", "客服经理", "人力资源"]
+            },
+            "ENFJ": {
+                nickname: "教育家",
+                coreTraits: "ENFJ型的人热爱人类，他们认为人的感情是最重要的。而且他们很自然地关心别人，以热情的态度对待生命。",
+                strengths: [
+                    "富有同情心和同理心",
+                    "善于理解和激励他人",
+                    "有领导力和组织能力"
+                ],
+                developmentTips: [
+                    "学会设定边界，保护自己的精力",
+                    "不要过于理想化，接受现实的不完美",
+                    "学会批评和反馈的技巧，不要过于温和"
+                ],
+                careerOptions: ["教师", "心理咨询师", "人力资源", "管理者", "社会工作者"]
+            },
+            "ENTJ": {
+                nickname: "指挥官",
+                coreTraits: "ENTJ型的人是伟大的领导者和决策人。他们能轻易地看出事物具有的可能性，很高兴指导别人，使他们的想象成为现实。",
+                strengths: [
+                    "有领导力和决策能力",
+                    "战略性思维，善于规划",
+                    "果断、坚决，有执行力"
+                ],
+                developmentTips: [
+                    "学会倾听他人的意见和建议",
+                    "关注他人的感受，不要过于理性",
+                    "学会授权，不要试图控制一切"
+                ],
+                careerOptions: ["高级管理者", "企业家", "律师", "政治家", "工程师"]
+            }
+        };
+
+        // 全局变量
+        let currentQuestionIndex = 0;
+        const answers = {}; // 存储用户答案
+        const markedQuestions = new Set(); // 存储标记的题目
+
+        // DOM元素 - 在DOM加载完成后获取
+        let welcomePage, testPage, resultPage;
+        let startTestBtn, prevBtn, nextBtn;
+        let questionText, optionAText, optionBText, optionA, optionB;
+        let currentQuestionEl, progressBar, progressText;
+        let answerSheet, answerSheetGrid, showAnswerSheetBtn, closeAnswerSheetBtn;
+        let markBtn, retestBtn, shareResultBtn, shareModal, closeShareBtn, shareType;
+        let helpBtn, helpModal, closeHelpBtn;
+
+        // 初始化函数 - 在DOM加载完成后执行
+        function init() {
+            // 获取DOM元素
+            welcomePage = document.getElementById('welcomePage');
+            testPage = document.getElementById('testPage');
+            resultPage = document.getElementById('resultPage');
+            startTestBtn = document.getElementById('startTestBtn');
+            prevBtn = document.getElementById('prevBtn');
+            nextBtn = document.getElementById('nextBtn');
+            questionText = document.getElementById('questionText');
+            optionAText = document.getElementById('optionAText');
+            optionBText = document.getElementById('optionBText');
+            optionA = document.getElementById('optionA');
+            optionB = document.getElementById('optionB');
+            currentQuestionEl = document.getElementById('currentQuestion');
+            progressBar = document.getElementById('progressBar');
+            progressText = document.getElementById('progressText');
+            answerSheet = document.getElementById('answerSheet');
+            answerSheetGrid = document.getElementById('answerSheetGrid');
+            showAnswerSheetBtn = document.getElementById('showAnswerSheetBtn');
+            closeAnswerSheetBtn = document.getElementById('closeAnswerSheetBtn');
+            markBtn = document.getElementById('markBtn');
+            retestBtn = document.getElementById('retestBtn');
+            shareResultBtn = document.getElementById('shareResultBtn');
+            shareModal = document.getElementById('shareModal');
+            closeShareBtn = document.getElementById('closeShareBtn');
+            shareType = document.getElementById('shareType');
+            helpBtn = document.getElementById('helpBtn');
+            helpModal = document.getElementById('helpModal');
+            closeHelpBtn = document.getElementById('closeHelpBtn');
+
+            // 绑定事件监听器
+            startTestBtn.addEventListener('click', startTest);
+            prevBtn.addEventListener('click', prevQuestion);
+            nextBtn.addEventListener('click', nextQuestion);
+            optionA.addEventListener('click', () => selectOption('A'));
+            optionB.addEventListener('click', () => selectOption('B'));
+            showAnswerSheetBtn.addEventListener('click', showAnswerSheet);
+            closeAnswerSheetBtn.addEventListener('click', closeAnswerSheet);
+            markBtn.addEventListener('click', toggleMark);
+            retestBtn.addEventListener('click', retest);
+            shareResultBtn.addEventListener('click', showShareModal);
+            closeShareBtn.addEventListener('click', closeShareModal);
+            helpBtn.addEventListener('click', showHelpModal);
+            closeHelpBtn.addEventListener('click', closeHelpModal);
+
+            // 键盘导航
+            document.addEventListener('keydown', (e) => {
+                if (testPage.classList.contains('hidden')) return;
+                
+                if (e.key === 'ArrowLeft') {
+                    prevQuestion();
+                } else if (e.key === 'ArrowRight') {
+                    nextQuestion();
+                } else if (e.key === 'a' || e.key === 'A') {
+                    selectOption('A');
+                } else if (e.key === 'b' || e.key === 'B') {
+                    selectOption('B');
+                }
+            });
+
+            // 滚动时改变导航栏样式
+            window.addEventListener('scroll', () => {
+                const header = document.querySelector('header');
+                if (window.scrollY > 10) {
+                    header.classList.add('shadow');
+                    header.classList.remove('shadow-sm');
+                } else {
+                    header.classList.remove('shadow');
+                    header.classList.add('shadow-sm');
+                }
+            });
+        }
+
+        // 初始化答题卡
+        function initAnswerSheet() {
+            answerSheetGrid.innerHTML = '';
+            questions.forEach((_, index) => {
+                const questionNumber = index + 1;
+                const sheetItem = document.createElement('button');
+                sheetItem.className = 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors';
+                sheetItem.textContent = questionNumber;
+                sheetItem.addEventListener('click', () => {
+                    goToQuestion(index);
+                    closeAnswerSheet();
+                });
+                answerSheetGrid.appendChild(sheetItem);
+            });
+        }
+
+        // 更新答题卡状态
+        function updateAnswerSheet() {
+            const sheetItems = answerSheetGrid.querySelectorAll('button');
+            questions.forEach((_, index) => {
+                const sheetItem = sheetItems[index];
+                // 重置样式
+                sheetItem.className = 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors';
+                
+                if (markedQuestions.has(index)) {
+                    // 标记的题目
+                    sheetItem.className += ' bg-accent/20 text-accent hover:bg-accent/30';
+                } else if (answers[index] !== undefined) {
+                    // 已回答的题目
+                    sheetItem.className += ' bg-primary/20 text-primary hover:bg-primary/30';
+                } else {
+                    // 未回答的题目
+                    sheetItem.className += ' bg-gray-100 text-gray-500 hover:bg-gray-200';
+                }
+            });
+        }
+
+        // 显示答题卡
+        function showAnswerSheet() {
+            answerSheet.classList.remove('hidden');
+        }
+
+        // 关闭答题卡
+        function closeAnswerSheet() {
+            answerSheet.classList.add('hidden');
+        }
+
+        // 加载当前题目
+        function loadCurrentQuestion() {
+            const question = questions[currentQuestionIndex];
+            questionText.textContent = question.text;
+            optionAText.textContent = question.optionA;
+            optionBText.textContent = question.optionB;
+            currentQuestionEl.textContent = currentQuestionIndex + 1;
+            
+            // 更新进度
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${currentQuestionIndex + 1}/${questions.length}`;
+            
+            // 更新选项状态
+            document.querySelectorAll('.option-radio').forEach(radio => {
+                radio.className = 'w-6 h-6 rounded-full border-2 border-gray-300 flex-shrink-0 mr-3 option-radio';
+                radio.innerHTML = '';
+            });
+            
+            if (answers[currentQuestionIndex] === 'A') {
+                optionA.querySelector('.option-radio').className = 'w-6 h-6 rounded-full border-2 border-primary bg-primary flex-shrink-0 mr-3 option-radio flex items-center justify-center';
+                optionA.querySelector('.option-radio').innerHTML = '<i class="fa fa-check text-white text-xs"></i>';
+            } else if (answers[currentQuestionIndex] === 'B') {
+                optionB.querySelector('.option-radio').className = 'w-6 h-6 rounded-full border-2 border-primary bg-primary flex-shrink-0 mr-3 option-radio flex items-center justify-center';
+                optionB.querySelector('.option-radio').innerHTML = '<i class="fa fa-check text-white text-xs"></i>';
+            }
+            
+            // 更新导航按钮状态
+            prevBtn.disabled = currentQuestionIndex === 0;
+            nextBtn.innerHTML = currentQuestionIndex === questions.length - 1 
+                ? '查看结果 <i class="fa fa-arrow-right ml-2"></i>' 
+                : '下一题 <i class="fa fa-arrow-right ml-2"></i>';
+            
+            // 更新标记按钮状态
+            if (markedQuestions.has(currentQuestionIndex)) {
+                markBtn.innerHTML = '<i class="fa fa-bookmark"></i><span class="ml-1 text-sm">取消标记</span>';
+                markBtn.classList.add('text-accent');
+                markBtn.classList.remove('text-gray-400');
+            } else {
+                markBtn.innerHTML = '<i class="fa fa-bookmark-o"></i><span class="ml-1 text-sm">标记</span>';
+                markBtn.classList.remove('text-accent');
+                markBtn.classList.add('text-gray-400');
+            }
+        }
+
+        // 前往指定题目
+        function goToQuestion(index) {
+            if (index >= 0 && index < questions.length) {
+                currentQuestionIndex = index;
+                loadCurrentQuestion();
+                // 添加页面切换动画
+                testPage.classList.add('fade-in');
+                setTimeout(() => testPage.classList.remove('fade-in'), 500);
+            }
+        }
+
+        // 上一题
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadCurrentQuestion();
+            }
+        }
+
+        // 下一题
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadCurrentQuestion();
+            } else {
+                // 最后一题，计算结果
+                calculateResult();
+                showResultPage();
+            }
+        }
+
+        // 选择选项
+        function selectOption(option) {
+            answers[currentQuestionIndex] = option;
+            updateAnswerSheet();
+            loadCurrentQuestion();
+        }
+
+        // 切换题目标记状态
+        function toggleMark() {
+            if (markedQuestions.has(currentQuestionIndex)) {
+                markedQuestions.delete(currentQuestionIndex);
+            } else {
+                markedQuestions.add(currentQuestionIndex);
+            }
+            updateAnswerSheet();
+            loadCurrentQuestion();
+        }
+
+        // 计算测试结果
+        function calculateResult() {
+            const scores = {
+                'E': 0, 'I': 0,
+                'S': 0, 'N': 0,
+                'T': 0, 'F': 0,
+                'J': 0, 'P': 0
+            };
+            
+            // 统计得分
+            for (let i = 0; i < questions.length; i++) {
+                const question = questions[i];
+                const answer = answers[i];
+                
+                if (answer === 'A') {
+                    scores[question.aValue]++;
+                } else if (answer === 'B') {
+                    scores[question.bValue]++;
+                }
+            }
+            
+            // 确定性格类型
+            const type = 
+                (scores['E'] >= scores['I'] ? 'E' : 'I') +
+                (scores['S'] >= scores['N'] ? 'S' : 'N') +
+                (scores['T'] >= scores['F'] ? 'T' : 'F') +
+                (scores['J'] >= scores['P'] ? 'J' : 'P');
+            
+            // 显示结果
+            displayResult(type);
+        }
+
+        // 显示结果
+        function displayResult(type) {
+            const typeData = personalityTypes[type] || personalityTypes['INFP']; // 默认INFP
+            
+            document.getElementById('personalityType').textContent = type;
+            document.getElementById('typeNickname').textContent = typeData.nickname;
+            document.getElementById('coreTraits').textContent = typeData.coreTraits;
+            
+            // 显示优势
+            const strengthsList = document.getElementById('strengths');
+            strengthsList.innerHTML = '';
+            typeData.strengths.forEach(strength => {
+                const li = document.createElement('li');
+                li.className = 'flex items-start';
+                li.innerHTML = `<i class="fa fa-check-circle text-secondary mt-1 mr-2"></i><span>${strength}</span>`;
+                strengthsList.appendChild(li);
+            });
+            
+            // 显示发展建议
+            const tipsList = document.getElementById('developmentTips');
+            tipsList.innerHTML = '';
+            typeData.developmentTips.forEach(tip => {
+                const li = document.createElement('li');
+                li.className = 'flex items-start';
+                li.innerHTML = `<i class="fa fa-arrow-right text-accent mt-1 mr-2"></i><span>${tip}</span>`;
+                tipsList.appendChild(li);
+            });
+            
+            // 显示适合的职业
+            const careerContainer = document.getElementById('careerOptions');
+            careerContainer.innerHTML = '';
+            typeData.careerOptions.forEach(career => {
+                const div = document.createElement('div');
+                div.className = 'bg-gray-50 rounded-lg p-3';
+                div.innerHTML = `<span class="font-medium">${career}</span>`;
+                careerContainer.appendChild(div);
+            });
+            
+            // 更新分享内容
+            shareType.textContent = `${type} - ${typeData.nickname}`;
+        }
+
+        // 显示结果页面
+        function showResultPage() {
+            testPage.classList.add('hidden');
+            resultPage.classList.remove('hidden');
+            resultPage.classList.add('fade-in');
+            setTimeout(() => resultPage.classList.remove('fade-in'), 500);
+        }
+
+        // 重新测试
+        function retest() {
+            // 重置状态
+            currentQuestionIndex = 0;
+            for (let key in answers) {
+                delete answers[key];
+            }
+            markedQuestions.clear();
+            
+            // 更新UI
+            resultPage.classList.add('hidden');
+            testPage.classList.remove('hidden');
+            initAnswerSheet();
+            loadCurrentQuestion();
+        }
+
+        // 显示分享弹窗
+        function showShareModal() {
+            shareModal.classList.remove('hidden');
+        }
+
+        // 关闭分享弹窗
+        function closeShareModal() {
+            shareModal.classList.add('hidden');
+        }
+
+        // 显示帮助弹窗
+        function showHelpModal() {
+            helpModal.classList.remove('hidden');
+        }
+
+        // 关闭帮助弹窗
+        function closeHelpModal() {
+            helpModal.classList.add('hidden');
+        }
+
+        // 开始测试 - 修复的核心函数
+        function startTest() {
+            try {
+                // 隐藏欢迎页面
+                welcomePage.classList.add('hidden');
+                
+                // 显示测试页面并初始化
+                testPage.classList.remove('hidden');
+                testPage.classList.add('fade-in');
+                setTimeout(() => testPage.classList.remove('fade-in'), 500);
+                
+                // 初始化答题卡和加载第一题
+                initAnswerSheet();
+                loadCurrentQuestion();
+                
+                // 滚动到页面顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (error) {
+                console.error('启动测试时出错:', error);
+                // 出错时的备用方案
+                alert('准备测试时出现问题，请刷新页面重试');
+            }
+        }
+
+        // 确保DOM加载完成后再初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>
